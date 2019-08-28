@@ -417,6 +417,7 @@ class Comment(BaseModel):
     A class representing the comment structure.
     Refer: https://developers.facebook.com/docs/graph-api/reference/v4.0/comment
     """
+
     def __init__(self, **kwargs):
         BaseModel.__init__(self, **kwargs)
         self.param_defaults = {
@@ -450,6 +451,7 @@ class CommentSummary(BaseModel):
     A class representing the comment summary structure.
     Refer: https://developers.facebook.com/docs/graph-api/reference/v4.0/post/comments
     """
+
     def __init__(self, **kwargs):
         BaseModel.__init__(self, **kwargs)
         self.param_defaults = {
@@ -463,6 +465,181 @@ class CommentSummary(BaseModel):
     def __repr__(self):
         return "CommentSummary(order={order},total_count={count})".format(
             order=self.order, count=self.total_count
+        )
+
+
+class Link(BaseModel):
+    """
+    A class representing the shared Link info.
+    Refer: https://developers.facebook.com/docs/graph-api/reference/v4.0/link
+    """
+
+    def __init__(self, **kwargs):
+        BaseModel.__init__(self, **kwargs)
+        self.param_defaults = {
+            'id': None,
+            'created_time': None,
+            'description': None,
+            'from': None,
+            'icon': None,
+            'link': None,
+            'message': None,
+            'name': None,
+            'picture': None,
+            'comments': None,
+            'likes': None
+        }
+        self.initial_param(kwargs)
+
+    def __repr__(self):
+        return "Link(id={id}, created_time={created_time})".format(
+            id=self.id, created_time=self.created_time
+        )
+
+
+# Marketing Models
+
+class HomeListingAddress(BaseModel):
+    """
+    A class representing the home listing address info.
+    Refer: https://developers.facebook.com/docs/marketing-api/reference/product-catalog/home_listings/
+    """
+
+    def __init__(self, **kwargs):
+        BaseModel.__init__(self, **kwargs)
+        self.param_defaults = {
+            'city': None,
+            'country': None,
+            'latitude': None,
+            'longitude': None,
+            'neighborhoods': None,
+            'postal_code': None,
+            'region': None,
+            'street_address': None,
+        }
+        self.initial_param(kwargs)
+
+    def __repr__(self):
+        return "HomeListingAddress(city={city},country={country})".format(
+            city=self.city, country=self.country
+        )
+
+
+class HomeListingImage(BaseModel):
+    """
+    A class representing the home listing images info.
+    Refer: https://developers.facebook.com/docs/marketing-api/reference/product-catalog/home_listings/
+    """
+
+    def __init__(self, **kwargs):
+        BaseModel.__init__(self, **kwargs)
+        self.param_defaults = {
+            'image_url': None,
+            'tags': None,
+        }
+        self.initial_param(kwargs)
+
+    def __repr__(self):
+        return "HomeListingImage(image_url={image_url})".format(image_url=self.image_url)
+
+
+class HomeListing(BaseModel):
+    """
+    A class representing the home listing info.
+    Refer: https://developers.facebook.com/docs/marketing-api/reference/product-catalog/home_listings
+    """
+
+    def __init__(self, **kwargs):
+        BaseModel.__init__(self, **kwargs)
+        self.param_defaults = {
+            'address': None,
+            'availability': None,
+            'currency': None,
+            'description': None,
+            'home_listing_id': None,
+            'images': None,
+            'listing_type': None,
+            'name': None,
+            'num_baths': None,
+            'num_beds': None,
+            'num_units': None,
+            'price': None,
+            'property_type': None,
+            'url': None,
+            'year_built': None
+        }
+        self.initial_param(kwargs)
+
+    def __repr__(self):
+        return "HomeListing(home_listing_id={id},name={name})".format(
+            id=self.home_listing_id, name=self.name
+        )
+
+    @classmethod
+    def new_from_json_dict(cls, data, **kwargs):
+        address = data.get('address')
+        if address is not None:
+            address = HomeListingAddress.new_from_json_dict(address)
+        images = data.get('images')
+        if images is not None:
+            images = [HomeListingImage.new_from_json_dict(item) for item in images]
+
+        return super(cls, cls).new_from_json_dict(
+            data=data, address=address,
+            images=images
+        )
+
+
+class LeadGenInfo(BaseModel):
+    """
+    A class representing the marketing leadGen submission info.
+    Refer: https://developers.facebook.com/docs/marketing-api/reference/user-lead-gen-info/
+    """
+
+    def __init__(self, **kwargs):
+        BaseModel.__init__(self, **kwargs)
+        self.param_defaults = {
+            'id': None,
+            'ad_id': None,
+            'ad_name': None,
+            'adset_id': None,
+            'adset_name': None,
+            'campaign_id': None,
+            'campaign_name': None,
+            'created_time': None,
+            'custom_disclaimer_responses': None,
+            'field_data': None,
+            'form_id': None,
+            'home_listing': None,
+            'is_organic': None,
+            'partner_name': None,
+            'platform': None,
+            'post': None,
+            'retailer_item_id': None,
+            'vehicle': None,
+        }
+        self.initial_param(kwargs)
+
+    def __repr__(self):
+        return "LeadGenInfo(id={id},ad_id={ad_id})".format(
+            id=self.id, ad_id=self.ad_id
+        )
+
+    @classmethod
+    def new_from_json_dict(cls, data, **kwargs):
+        custom_disclaimer_responses = data.get('custom_disclaimer_responses')
+        if custom_disclaimer_responses is not None:
+            custom_disclaimer_responses = []
+        field_data = data.get('field_data')
+        if field_data is not None:
+            field_data = []
+        home_listing = data.get('home_listing')
+        if home_listing is not None:
+            home_listing = HomeListing.new_from_json_dict(home_listing)
+
+        return super(cls, cls).new_from_json_dict(
+            data=data, custom_disclaimer_responses=custom_disclaimer_responses,
+            field_data=field_data, home_listing=home_listing
         )
 
 
